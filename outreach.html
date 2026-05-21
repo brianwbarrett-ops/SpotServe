@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotServe — Venue Outreach Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral:      #2563EB;
+    --coral-dark: #1E3A6E;
+    --navy:       #222222;
+    --gray-1:     #717171;
+    --gray-2:     #B0B0B0;
+    --gray-3:     #DDDDDD;
+    --gray-4:     #F7F7F7;
+    --white:      #FFFFFF;
+    --gold:       #F0B429;
+    --green:      #22C55E;
+    --shadow-sm:  0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    --shadow-md:  0 6px 20px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+    --shadow-lg:  0 16px 40px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08);
+    --radius:     12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--gray-4); color: var(--navy); }
+
+  /* NAV */
+  .nav { background: var(--white); border-bottom: 1px solid var(--gray-3); padding: 0 48px; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 20px; color: #FF385C; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+  .nav-back { font-size: 14px; color: var(--gray-1); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+  .nav-back:hover { color: var(--navy); }
+  .nav-back svg { width: 16px; height: 16px; }
+
+  /* PAGE HEADER */
+  .page-header { background: linear-gradient(135deg, #0D1F3C 0%, #1E3A6E 100%); padding: 48px 48px 0; position: relative; overflow: hidden; }
+  .page-header::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px); background-size: 24px 24px; }
+  .page-header-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; }
+  .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .page-header h1 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 700; color: var(--white); letter-spacing: -1px; line-height: 1.1; margin-bottom: 12px; }
+  .page-header h1 em { font-style: italic; color: var(--gold); }
+  .page-header p { font-size: 16px; color: rgba(255,255,255,0.7); font-weight: 300; line-height: 1.65; max-width: 560px; margin-bottom: 32px; }
+  .stats-row { display: flex; gap: 32px; }
+  .stat-chip-val { font-size: 22px; font-weight: 700; color: var(--white); }
+  .stat-chip-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  /* TAB NAV */
+  .tab-nav { display: flex; gap: 0; margin-top: 32px; }
+  .tab-btn { padding: 14px 28px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); border: none; background: transparent; cursor: pointer; font-family: inherit; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn.active { color: var(--white); border-bottom-color: var(--gold); }
+  .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.9); }
+
+  /* MAIN CONTENT */
+  .main-wrap { padding: 0 48px; }
+  .main { max-width: 1100px; margin: 0 auto; padding: 40px 0; }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* CATEGORY TABS */
+  .cat-tabs { display: flex; gap: 8px; margin-bottom: 32px; }
+  .cat-tab { padding: 8px 20px; border-radius: 40px; border: 1.5px solid var(--gray-3); font-size: 14px; font-weight: 600; color: var(--gray-1); cursor: pointer; background: var(--white); transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
+  .cat-tab.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  .cat-tab:hover:not(.active) { border-color: var(--navy); color: var(--navy); }
+
+  /* EMAIL SEQUENCE */
+  .sequence-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-1); margin-bottom: 16px; }
+  .email-cards { display: flex; flex-direction: column; gap: 20px; }
+  .email-card { background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--gray-3); overflow: hidden; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s; }
+  .email-card:hover { box-shadow: var(--shadow-md); }
+  .email-card-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-3); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .email-step { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: var(--white); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .email-step-info { flex: 1; }
+  .email-timing { font-size: 11px; color: var(--gray-2); font-weight: 500; margin-bottom: 4px; }
+  .email-subject-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-2); margin-bottom: 4px; }
+  .email-subject { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .copy-btn { padding: 6px 14px; border-radius: 6px; border: 1.5px solid var(--gray-3); background: var(--white); font-size: 12px; font-weight: 600; color: var(--gray-1); cursor: pointer; font-family: inherit; transition: all 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0; }
+  .copy-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .copy-btn.copied { background: var(--green); border-color: var(--green); color: var(--white); }
+  .email-body { padding: 20px 24px; }
+  .email-body pre { font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.8; color: var(--navy); white-space: pre-wrap; word-break: break-word; }
+  .ph { background: rgba(240,180,41,0.18); color: #92620A; border-radius: 3px; padding: 0 4px; font-weight: 600; font-style: normal; }
+  .email-card-footer { padding: 12px 24px; border-top: 1px solid var(--gray-3); background: var(--gray-4); }
+  .footer-tip { font-size: 12px; color: var(--gray-1); line-height: 1.5; }
+  .footer-tip strong { color: var(--navy); }
+
+  /* CATEGORY PANEL */
+  .cat-panel { display: none; }
+  .cat-panel.active { display: block; }
+
+  /* TRACKER */
+  .tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .tracker-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tstat { background: var(--white); border: 1.5px solid var(--gray-3); border-radius: 8px; padding: 10px 16px; text-align: center; box-shadow: var(--shadow-sm); min-width: 72px; }
+  .tstat-val { font-size: 20px; font-weight: 700; color: var(--navy); }
+  .tstat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-2); margin-top: 2px; }
+  .tstat.highlight .tstat-val { color: var(--green); }
+  .btn-add { background: var(--navy); color: var(--white); border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+  .btn-add:hover { background: #111; }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-tab { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-3); font-size: 13px; font-weight: 600; color: var(--gray-1); cursor: pointer; background: var(--white); transition: all 0.2s; font-family: inherit; }
+  .filter-tab.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  .filter-tab:hover:not(.active) { border-color: var(--navy); color: var(--navy); }
+
+  /* VENUE TABLE */
+  .venue-table { background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--gray-3); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .venue-table-header { display: grid; grid-template-columns: 2fr 1fr 1.4fr 1.6fr auto; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--gray-3); background: var(--gray-4); }
+  .vth { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-2); }
+  .venue-row { display: grid; grid-template-columns: 2fr 1fr 1.4fr 1.6fr auto; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--gray-3); align-items: center; transition: background 0.15s; }
+  .venue-row:last-child { border-bottom: none; }
+  .venue-row:hover { background: var(--gray-4); }
+  .venue-name-cell .vname { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .venue-name-cell .vcity { font-size: 12px; color: var(--gray-1); margin-top: 2px; }
+  .venue-notes { font-size: 11px; color: var(--gray-2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .type-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; background: var(--gray-4); color: var(--navy); }
+  .contact-cell .cname { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .contact-cell .cemail { font-size: 11px; color: var(--gray-1); margin-top: 2px; }
+  .status-select { padding: 5px 10px; border-radius: 6px; border: 1.5px solid var(--gray-3); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; background: var(--white); outline: none; transition: border-color 0.2s; width: 100%; }
+  .status-select:focus { border-color: var(--navy); }
+  .s-new { color: var(--gray-1); }
+  .s-emailed { color: #2563EB; border-color: #BFDBFE !important; background: #EFF6FF !important; }
+  .s-followup { color: #D97706; border-color: #FDE68A !important; background: #FFFBEB !important; }
+  .s-final { color: #7C3AED; border-color: #DDD6FE !important; background: #F5F3FF !important; }
+  .s-listed { color: #059669; border-color: #A7F3D0 !important; background: #ECFDF5 !important; }
+  .s-declined { color: #DC2626; border-color: #FECACA !important; background: #FEF2F2 !important; }
+  .row-actions { display: flex; gap: 6px; }
+  .row-btn { width: 30px; height: 30px; border-radius: 6px; border: 1.5px solid var(--gray-3); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 13px; }
+  .row-btn:hover { border-color: var(--navy); background: var(--gray-4); }
+  .row-btn.del:hover { border-color: #DC2626; background: #FEF2F2; }
+  .empty-state { text-align: center; padding: 64px 20px; }
+  .empty-state .icon { font-size: 40px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; color: var(--gray-1); max-width: 300px; margin: 0 auto 20px; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 20px; padding: 36px; max-width: 520px; width: 100%; box-shadow: var(--shadow-lg); }
+  .modal h3 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 24px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field.full { grid-column: 1 / -1; }
+  .form-field label { font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-field input, .form-field select, .form-field textarea { padding: 10px 14px; border: 1.5px solid var(--gray-3); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--navy); outline: none; transition: border-color 0.2s; background: var(--white); }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--coral); }
+  .form-field textarea { resize: vertical; min-height: 80px; }
+  .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+  .btn-cancel { padding: 10px 20px; border-radius: 8px; border: 1.5px solid var(--gray-3); background: var(--white); font-size: 14px; font-weight: 600; color: var(--gray-1); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .btn-cancel:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-save { padding: 10px 24px; border-radius: 8px; border: none; background: var(--navy); font-size: 14px; font-weight: 600; color: var(--white); cursor: pointer; font-family: inherit; transition: background 0.2s; }
+  .btn-save:hover { background: #111; }
+
+  @media (max-width: 768px) {
+    .nav { padding: 0 20px; }
+    .page-header { padding: 32px 20px 0; }
+    .main-wrap { padding: 0 20px; }
+    .venue-table-header { display: none; }
+    .venue-row { grid-template-columns: 1fr; gap: 8px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 20px; }
+    .cat-tabs { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html.html" class="logo">
+      <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:#FF385C"><path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8zm0 5.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5z"/></svg>
+      SpotServe
+    </a>
+    <a href="index.html.html" class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to site
+    </a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Internal Tool</div>
+    <h1>Venue Outreach <em>Toolkit</em></h1>
+    <p>Email sequences and a contact tracker for reaching out to breweries, parks, and other venues to add to SpotServe.</p>
+    <div class="stats-row">
+      <div class="stat-chip">
+        <div class="stat-chip-val" id="total-stat">0</div>
+        <div class="stat-chip-label">Total Venues</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-val" id="contacted-stat">0</div>
+        <div class="stat-chip-label">Contacted</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-val" id="listed-stat">0</div>
+        <div class="stat-chip-label">Listed</div>
+      </div>
+    </div>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('templates', this)">Email Templates</button>
+      <button class="tab-btn" onclick="switchTab('tracker', this)">Contact Tracker</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-wrap">
+<div class="main">
+
+  <!-- ── EMAIL TEMPLATES ── -->
+  <div id="panel-templates" class="tab-panel active">
+
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="switchCat('brewery', this)">🍺 Breweries &amp; Taprooms</button>
+      <button class="cat-tab" onclick="switchCat('parks', this)">🌳 Parks &amp; Tourist Spots</button>
+    </div>
+
+    <!-- BREWERY SEQUENCE -->
+    <div id="cat-brewery" class="cat-panel active">
+      <div class="sequence-label">3-Email Sequence · Breweries &amp; Taprooms</div>
+      <div class="email-cards">
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">1</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 1 — Initial outreach</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Food trucks + your patio = more pints sold</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'b1')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="b1-raw" style="display:none">Subject: Food trucks + your patio = more pints sold
+
+Hi [First Name],
+
+My name is [Your Name] and I run SpotServe — a marketplace that connects craft breweries with vetted food truck operators looking for great spots.
+
+Here's the idea: food trucks parked on your patio drive longer visits and more pint sales. Customers arrive for the food and stay for the beer. Breweries that host food trucks consistently see 20–30% longer average dwell times.
+
+SpotServe handles everything — discovery, operator vetting, messaging, and scheduling. You set your availability and pricing. Listing is completely free, and you keep 100% of what you charge.
+
+Worth a quick 10-minute call to see if it's a fit for [Brewery Name]?
+
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="b1">Subject: Food trucks + your patio = more pints sold
+
+Hi <i class="ph">[First Name]</i>,
+
+My name is <i class="ph">[Your Name]</i> and I run SpotServe — a marketplace that connects craft breweries with vetted food truck operators looking for great spots.
+
+Here's the idea: food trucks parked on your patio drive longer visits and more pint sales. Customers arrive for the food and stay for the beer. Breweries that host food trucks consistently see 20–30% longer average dwell times.
+
+SpotServe handles everything — discovery, operator vetting, messaging, and scheduling. You set your availability and pricing. Listing is completely free, and you keep 100% of what you charge.
+
+Worth a quick 10-minute call to see if it's a fit for <i class="ph">[Brewery Name]</i>?
+
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> Find the taproom manager or owner on the brewery's website or LinkedIn before sending. "Patio manager" and "events coordinator" are also good titles to look for.</div>
+          </div>
+        </div>
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">2</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 4–5 — Follow-up</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Re: Food trucks + your patio</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'b2')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="b2-raw" style="display:none">Subject: Re: Food trucks + your patio
+
+Hi [First Name],
+
+Just following up on my note from [Day, e.g. "Tuesday"]. Wanted to share a quick example:
+
+Riverside Brewing Co. in Chicago's West Loop started listing on SpotServe last spring. They now earn $1,800–$2,200/month from spot fees alone — food trucks handle all their own setup, they just approve bookings and collect payment.
+
+Listing takes about 5 minutes. No contract, no platform commission taken from your earnings, cancel anytime.
+
+Would love to get [Brewery Name] on the map. Worth a quick call this week?
+
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="b2">Subject: Re: Food trucks + your patio
+
+Hi <i class="ph">[First Name]</i>,
+
+Just following up on my note from <i class="ph">[Day, e.g. "Tuesday"]</i>. Wanted to share a quick example:
+
+Riverside Brewing Co. in Chicago's West Loop started listing on SpotServe last spring. They now earn $1,800–$2,200/month from spot fees alone — food trucks handle all their own setup, they just approve bookings and collect payment.
+
+Listing takes about 5 minutes. No contract, no platform commission taken from your earnings, cancel anytime.
+
+Would love to get <i class="ph">[Brewery Name]</i> on the map. Worth a quick call this week?
+
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> "Re:" in the subject gets higher open rates even for first follow-ups. Keep this short — the social proof does the heavy lifting.</div>
+          </div>
+        </div>
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">3</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 10–12 — Final touch</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Last note — free listing for [Brewery Name]</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'b3')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="b3-raw" style="display:none">Subject: Last note — free listing for [Brewery Name]
+
+Hi [First Name],
+
+I'll keep this short — last message, I promise.
+
+If you ever want to activate your patio as a food truck spot, SpotServe is always free to list. No contract, no commissions taken from your earnings.
+
+You can add [Brewery Name] in a few minutes: spotserve.co
+
+If the timing's not right, no worries at all. I'd love to have you when you're ready.
+
+Cheers,
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="b3">Subject: Last note — free listing for <i class="ph">[Brewery Name]</i>
+
+Hi <i class="ph">[First Name]</i>,
+
+I'll keep this short — last message, I promise.
+
+If you ever want to activate your patio as a food truck spot, SpotServe is always free to list. No contract, no commissions taken from your earnings.
+
+You can add <i class="ph">[Brewery Name]</i> in a few minutes: spotserve.co
+
+If the timing's not right, no worries at all. I'd love to have you when you're ready.
+
+Cheers,
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> The "last message" framing reliably generates replies even from cold contacts. Permission + low-friction CTA is the formula here.</div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /cat-brewery -->
+
+    <!-- PARKS SEQUENCE -->
+    <div id="cat-parks" class="cat-panel">
+      <div class="sequence-label">3-Email Sequence · Parks &amp; Tourist Spots</div>
+      <div class="email-cards">
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">1</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 1 — Initial outreach</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Food vendors at [Park Name] — a quick idea</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'p1')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="p1-raw" style="display:none">Subject: Food vendors at [Park/Venue Name] — a quick idea
+
+Hi [First Name],
+
+I'm [Your Name] with SpotServe, a platform that connects parks and public attractions with vetted mobile food operators — food trucks, pop-up bars, specialty carts.
+
+Visitors consistently rank food and beverage access among the top factors in how long they stay and whether they return. SpotServe makes it easy to offer that amenity without managing concession infrastructure yourself.
+
+You define the spots, hours, and pricing. Operators apply and you approve. We handle vetting, insurance verification, and scheduling.
+
+Would it make sense to connect for 15 minutes to explore a fit for [Park/Venue Name]?
+
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="p1">Subject: Food vendors at <i class="ph">[Park/Venue Name]</i> — a quick idea
+
+Hi <i class="ph">[First Name]</i>,
+
+I'm <i class="ph">[Your Name]</i> with SpotServe, a platform that connects parks and public attractions with vetted mobile food operators — food trucks, pop-up bars, specialty carts.
+
+Visitors consistently rank food and beverage access among the top factors in how long they stay and whether they return. SpotServe makes it easy to offer that amenity without managing concession infrastructure yourself.
+
+You define the spots, hours, and pricing. Operators apply and you approve. We handle vetting, insurance verification, and scheduling.
+
+Would it make sense to connect for 15 minutes to explore a fit for <i class="ph">[Park/Venue Name]</i>?
+
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> For public parks look for a "Special Events" or "Concessions" contact. For private attractions, aim for the GM or Director of Operations.</div>
+          </div>
+        </div>
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">2</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 4–5 — Follow-up</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Re: Food vendors at [Park/Venue Name]</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'p2')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="p2-raw" style="display:none">Subject: Re: Food vendors at [Park/Venue Name]
+
+Hi [First Name],
+
+Quick follow-up on my note from [Day, e.g. "Monday"]. A few details that might be relevant for [Park/Venue Name]:
+
+• All SpotServe operators carry their own liability insurance — proof is required before any booking is confirmed
+• You control exactly which dates, hours, and locations are available — full flexibility around your existing events
+• Navy Pier in Chicago runs 4–6 concurrent food truck spots during peak season, all managed through SpotServe with zero staff overhead on their end
+
+Listing is free. Spot fee revenue goes directly to you.
+
+Happy to share more specifics. Would a short call work this week?
+
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="p2">Subject: Re: Food vendors at <i class="ph">[Park/Venue Name]</i>
+
+Hi <i class="ph">[First Name]</i>,
+
+Quick follow-up on my note from <i class="ph">[Day, e.g. "Monday"]</i>. A few details that might be relevant for <i class="ph">[Park/Venue Name]</i>:
+
+• All SpotServe operators carry their own liability insurance — proof is required before any booking is confirmed
+• You control exactly which dates, hours, and locations are available — full flexibility around your existing events
+• Navy Pier in Chicago runs 4–6 concurrent food truck spots during peak season, all managed through SpotServe with zero staff overhead on their end
+
+Listing is free. Spot fee revenue goes directly to you.
+
+Happy to share more specifics. Would a short call work this week?
+
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> Insurance and schedule control are the two biggest concerns for parks and tourist venues. Lead with those directly in the follow-up.</div>
+          </div>
+        </div>
+
+        <div class="email-card">
+          <div class="email-card-header">
+            <div class="email-step">3</div>
+            <div class="email-step-info">
+              <div class="email-timing">Day 10–12 — Final touch</div>
+              <div class="email-subject-label">Subject line</div>
+              <div class="email-subject">Leaving this here for [Park Name]</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail(this, 'p3')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy email
+            </button>
+          </div>
+          <div class="email-body">
+            <pre id="p3-raw" style="display:none">Subject: Leaving this here for [Park/Venue Name]
+
+Hi [First Name],
+
+Last note on this — I know inboxes get crowded.
+
+If activating food vendor spots ever moves up the priority list for [Park/Venue Name], listing on SpotServe is free and takes a few minutes: spotserve.co
+
+We'd love to have you. No pressure, no timeline.
+
+Thanks for your time,
+[Your Name]
+SpotServe · spotserve.co</pre>
+            <pre id="p3">Subject: Leaving this here for <i class="ph">[Park/Venue Name]</i>
+
+Hi <i class="ph">[First Name]</i>,
+
+Last note on this — I know inboxes get crowded.
+
+If activating food vendor spots ever moves up the priority list for <i class="ph">[Park/Venue Name]</i>, listing on SpotServe is free and takes a few minutes: spotserve.co
+
+We'd love to have you. No pressure, no timeline.
+
+Thanks for your time,
+<i class="ph">[Your Name]</i>
+SpotServe · spotserve.co</pre>
+          </div>
+          <div class="email-card-footer">
+            <div class="footer-tip"><strong>Tip:</strong> Parks often have long procurement/approval cycles. A "no pressure" close keeps the door open for the next budget cycle.</div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /cat-parks -->
+
+  </div><!-- /panel-templates -->
+
+  <!-- ── CONTACT TRACKER ── -->
+  <div id="panel-tracker" class="tab-panel">
+
+    <div class="tracker-header">
+      <div class="tracker-stats">
+        <div class="tstat"><div class="tstat-val" id="t-total">0</div><div class="tstat-label">Total</div></div>
+        <div class="tstat"><div class="tstat-val" id="t-new">0</div><div class="tstat-label">New</div></div>
+        <div class="tstat"><div class="tstat-val" id="t-contacted">0</div><div class="tstat-label">Emailed</div></div>
+        <div class="tstat"><div class="tstat-val" id="t-replied">0</div><div class="tstat-label">Replied</div></div>
+        <div class="tstat highlight"><div class="tstat-val" id="t-listed">0</div><div class="tstat-label">Listed</div></div>
+      </div>
+      <button class="btn-add" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Venue
+      </button>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterVenues('all', this)">All</button>
+      <button class="filter-tab" onclick="filterVenues('new', this)">New</button>
+      <button class="filter-tab" onclick="filterVenues('emailed', this)">Email 1 Sent</button>
+      <button class="filter-tab" onclick="filterVenues('followup', this)">Followed Up</button>
+      <button class="filter-tab" onclick="filterVenues('final', this)">Final Sent</button>
+      <button class="filter-tab" onclick="filterVenues('listed', this)">Listed ✓</button>
+      <button class="filter-tab" onclick="filterVenues('declined', this)">Declined</button>
+    </div>
+
+    <div class="venue-table">
+      <div class="venue-table-header">
+        <div class="vth">Venue</div>
+        <div class="vth">Type</div>
+        <div class="vth">Contact</div>
+        <div class="vth">Status</div>
+        <div class="vth"></div>
+      </div>
+      <div id="venue-list"></div>
+    </div>
+
+  </div><!-- /panel-tracker -->
+
+</div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="add-modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <h3 id="modal-title">Add Venue</h3>
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>Venue Name *</label>
+        <input type="text" id="f-name" placeholder="e.g. Riverside Brewing Co.">
+      </div>
+      <div class="form-field">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="brewery">🍺 Brewery / Taproom</option>
+          <option value="park">🌳 Park / Tourist Spot</option>
+          <option value="hotel">🏨 Hotel / Parking</option>
+          <option value="bar">🍸 Bar / Nightlife</option>
+          <option value="office">🏢 Office Park</option>
+          <option value="other">📍 Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>City</label>
+        <input type="text" id="f-city" placeholder="e.g. Chicago, IL">
+      </div>
+      <div class="form-field">
+        <label>Contact Name</label>
+        <input type="text" id="f-contact" placeholder="e.g. Sarah M.">
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" id="f-email" placeholder="contact@venue.com">
+      </div>
+      <div class="form-field full">
+        <label>Notes</label>
+        <textarea id="f-notes" placeholder="Patio size, peak hours, how you found them, referrals, etc."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveVenue()">Add Venue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TYPE_LABELS = { brewery:'🍺 Brewery', park:'🌳 Park', hotel:'🏨 Hotel', bar:'🍸 Bar', office:'🏢 Office', other:'📍 Other' };
+const STATUS_LABELS = { new:'New', emailed:'Email 1 Sent', followup:'Followed Up', final:'Final Sent', listed:'Listed ✓', declined:'Declined' };
+const KEY = 'spotserve_outreach_v1';
+
+let venues = [];
+try { venues = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
+let currentFilter = 'all';
+let editingId = null;
+
+function persist() { localStorage.setItem(KEY, JSON.stringify(venues)); }
+
+// ── TABS ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function switchCat(name, btn) {
+  document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('cat-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── COPY EMAIL ──
+function copyEmail(btn, id) {
+  const raw = document.getElementById(id + '-raw');
+  const text = raw ? raw.innerText : document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy email';
+    }, 2200);
+  });
+}
+
+// ── STATS ──
+function updateStats() {
+  const total = venues.length;
+  const contacted = venues.filter(v => ['emailed','followup','final','listed'].includes(v.status)).length;
+  const listed = venues.filter(v => v.status === 'listed').length;
+  document.getElementById('total-stat').textContent = total;
+  document.getElementById('contacted-stat').textContent = contacted;
+  document.getElementById('listed-stat').textContent = listed;
+  document.getElementById('t-total').textContent = total;
+  document.getElementById('t-new').textContent = venues.filter(v => v.status === 'new').length;
+  document.getElementById('t-contacted').textContent = venues.filter(v => v.status === 'emailed').length;
+  document.getElementById('t-replied').textContent = venues.filter(v => v.status === 'followup').length;
+  document.getElementById('t-listed').textContent = listed;
+}
+
+// ── FILTER ──
+function filterVenues(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVenues();
+}
+
+// ── RENDER ──
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function renderVenues() {
+  const list = document.getElementById('venue-list');
+  const filtered = currentFilter === 'all' ? venues : venues.filter(v => v.status === currentFilter);
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="icon">📍</div>
+      <h3>${currentFilter === 'all' ? 'No venues yet' : 'Nothing here'}</h3>
+      <p>${currentFilter === 'all' ? 'Add your first venue to start tracking outreach.' : 'No venues with this status.'}</p>
+      ${currentFilter === 'all' ? '<button class="btn-add" style="margin:0 auto" onclick="openModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Venue</button>' : ''}
+    </div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(v => `
+    <div class="venue-row">
+      <div class="venue-name-cell">
+        <div class="vname">${esc(v.name)}</div>
+        <div class="vcity">${esc(v.city)}</div>
+        ${v.notes ? `<div class="venue-notes">${esc(v.notes)}</div>` : ''}
+      </div>
+      <div><span class="type-badge">${esc(TYPE_LABELS[v.type] || '📍 Other')}</span></div>
+      <div class="contact-cell">
+        <div class="cname">${esc(v.contact) || '—'}</div>
+        <div class="cemail">${esc(v.email) || ''}</div>
+      </div>
+      <div>
+        <select class="status-select s-${v.status}" onchange="updateStatus('${v.id}', this)">
+          ${Object.entries(STATUS_LABELS).map(([k,lbl]) => `<option value="${k}"${k===v.status?' selected':''}>${esc(lbl)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="row-actions">
+        <button class="row-btn" onclick="openModal('${v.id}')" title="Edit">✏️</button>
+        <button class="row-btn del" onclick="deleteVenue('${v.id}')" title="Delete">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateStatus(id, sel) {
+  const v = venues.find(v => v.id === id);
+  if (!v) return;
+  v.status = sel.value;
+  sel.className = 'status-select s-' + sel.value;
+  persist();
+  updateStats();
+}
+
+function deleteVenue(id) {
+  if (!confirm('Remove this venue from the tracker?')) return;
+  venues = venues.filter(v => v.id !== id);
+  persist();
+  updateStats();
+  renderVenues();
+}
+
+// ── MODAL ──
+function openModal(id) {
+  editingId = id || null;
+  if (id) {
+    const v = venues.find(v => v.id === id);
+    document.getElementById('modal-title').textContent = 'Edit Venue';
+    document.getElementById('f-name').value = v.name;
+    document.getElementById('f-type').value = v.type;
+    document.getElementById('f-city').value = v.city;
+    document.getElementById('f-contact').value = v.contact;
+    document.getElementById('f-email').value = v.email;
+    document.getElementById('f-notes').value = v.notes;
+    document.querySelector('.btn-save').textContent = 'Save Changes';
+  } else {
+    document.getElementById('modal-title').textContent = 'Add Venue';
+    ['f-name','f-city','f-contact','f-email','f-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-type').value = 'brewery';
+    document.querySelector('.btn-save').textContent = 'Add Venue';
+  }
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  editingId = null;
+}
+function handleOverlayClick(e) { if (e.target === e.currentTarget) closeModal(); }
+
+function saveVenue() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('f-name').focus(); return; }
+  const data = {
+    name,
+    type: document.getElementById('f-type').value,
+    city: document.getElementById('f-city').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  if (editingId) {
+    Object.assign(venues.find(v => v.id === editingId), data);
+  } else {
+    venues.push({ id: Date.now().toString(), status: 'new', added: Date.now(), ...data });
+  }
+  persist();
+  updateStats();
+  renderVenues();
+  closeModal();
+}
+
+// ── INIT ──
+updateStats();
+renderVenues();
+</script>
+</body>
+</html>
